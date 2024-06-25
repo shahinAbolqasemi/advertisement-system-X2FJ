@@ -1,10 +1,16 @@
+import enum
 from datetime import datetime
 from functools import partial
 
 import pytz
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, Enum
 
 from ..database import Base
+
+
+class AdvertiseStatus(enum.Enum):
+    ACTIVE = 'active'
+    INACTIVE = 'inactive'
 
 
 class Advertise(Base):
@@ -14,9 +20,9 @@ class Advertise(Base):
     title = Column(String, unique=True)
     description = Column(String)
     timestamp = Column(DateTime(timezone=True), default=partial(datetime.now, tz=pytz.UTC))
-    status = Column(Boolean, default=True)
+    status = Column(Enum(AdvertiseStatus), default=AdvertiseStatus.ACTIVE)
 
-    user_id = Column(Integer, ForeignKey('user.id', ondelete="CASCADE", onupdate="CASCADE"))
+    owner_id = Column(Integer, ForeignKey('user.id', ondelete="CASCADE", onupdate="CASCADE"))
 
 
 class Comment(Base):
@@ -26,8 +32,8 @@ class Comment(Base):
     content = Column(String)
     timestamp = Column(DateTime(timezone=True), default=partial(datetime.now, tz=pytz.UTC))
 
-    user_id = Column(Integer, ForeignKey('user.id', ondelete="CASCADE", onupdate="CASCADE"))
+    owner_id = Column(Integer, ForeignKey('user.id', ondelete="CASCADE", onupdate="CASCADE"))
     advertise_id = Column(Integer, ForeignKey('advertise.id', ondelete="CASCADE", onupdate="CASCADE"))
     __table_args__ = (
-        UniqueConstraint("user_id", "advertise_id", name="unique_user_advertise_comment"),
+        UniqueConstraint("owner_id", "advertise_id", name="unique_user_advertise_comment"),
     )

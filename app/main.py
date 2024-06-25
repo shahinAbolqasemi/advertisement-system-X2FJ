@@ -2,12 +2,14 @@ from fastapi import FastAPI, status
 from starlette.middleware.cors import CORSMiddleware
 
 from . import database
+from .database import get_db
 from .middlewares import AuthenticationMiddleware, BearerTokenAuthBackend
 from .routers.ad import router as ad_router
 from .routers.auth import router as auth_router
 
 database.Base.metadata.create_all(bind=database.engine)
 app = FastAPI()
+app.state.db = get_db()
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,7 +20,7 @@ app.add_middleware(
 )
 app.add_middleware(
     AuthenticationMiddleware,
-    backend=BearerTokenAuthBackend()
+    backend=BearerTokenAuthBackend(app)
 )
 
 
@@ -28,4 +30,4 @@ async def ping():
 
 
 app.include_router(auth_router, prefix='/auth')
-app.include_router(ad_router, prefix='/ad')
+app.include_router(ad_router, prefix='/ads')

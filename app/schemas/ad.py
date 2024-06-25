@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
+
+from app import models
 
 
 class TagBase(BaseModel):
@@ -11,35 +13,43 @@ class TagCreate(TagBase):
 
 
 class Tag(TagBase):
-    id: int
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
+    id: int
 
 
 class AdBase(BaseModel):
     title: str
-    thumb: str | None = None
-    owner_id: int
+    # thumb: str | None = None
     description: str | None = None
-    status: bool = True
-    tags: list[Tag] = []
+    # tags: list[Tag] = []
 
 
 class AdCreate(AdBase):
     pass
 
 
-class Ad(AdBase):
-    id: int
+class AdUpdate(BaseModel):
+    title: str
+    # thumb: str | None = None
+    description: str | None = None
 
-    class Config:
-        from_attributes = True
+
+class AdPartialUpdate(BaseModel):
+    title: str | None = None
+    # thumb: str | None = None
+    description: str | None = None
+
+
+class Ad(AdBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    owner_id: int
+    status: models.AdvertiseStatus
 
 
 class CommentBase(BaseModel):
-    ad_id: int
-    owner_id: int
     content: str
 
 
@@ -48,7 +58,8 @@ class CommentCreate(CommentBase):
 
 
 class Comment(CommentBase):
-    id: int
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
+    id: int
+    owner_id: int
+    advertise_id: int

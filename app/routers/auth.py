@@ -48,5 +48,5 @@ async def signup(user: UserCreate, db_session: Annotated[Session, Depends(get_db
     return StandardResponse(
         status=ResponseStatus.SUCCESS,
         message=constants.ROUTER_AUTH_LOGIN_SUCCESS,
-        data=User.model_validate(user_instance).dict()
+        data=User.model_validate(user_instance).model_dump()
     )

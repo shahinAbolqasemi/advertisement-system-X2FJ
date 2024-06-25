@@ -25,7 +25,7 @@ async def get_current_user(request: Request, token: Annotated[str, Depends(oauth
     if not request.user.is_authenticated:
         raise credentials_exception
 
-    return request.user.dict()
+    return request.user.model_dump()
 
 
 async def authenticate_user(

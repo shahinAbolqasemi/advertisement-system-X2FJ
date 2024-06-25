@@ -11,7 +11,6 @@ from starlette.types import Receive, Send, Scope, ASGIApp
 
 from app.schemas.auth import TokenData
 from settings import get_settings
-from .database import get_db
 from .models.user import User
 from .schemas.auth import AuthenticatedUser, AnonymousUser
 
@@ -23,6 +22,10 @@ class BearerTokenAuthBackend(AuthenticationBackend):
     This is a custom auth backend class that will allow you to authenticate your request and return auth and user as
     a tuple
     """
+
+    def __init__(self, app) -> None:
+        self.app = app
+        super().__init__()
 
     async def authenticate(self, request):
         # This function is inherited from the base class and called by some other class
@@ -42,7 +45,7 @@ class BearerTokenAuthBackend(AuthenticationBackend):
                 raise AuthenticationError('Invalid JWT Token.')
             except ExpiredSignatureError:
                 raise AuthenticationError('Signature has expired')
-            db = next(get_db())
+            db = next(self.app.state.db)
             try:
                 username: str = decoded.get("sub")
                 session_key: str = decoded.get("session_key")
@@ -56,7 +59,7 @@ class BearerTokenAuthBackend(AuthenticationBackend):
         else:
             return auth, AnonymousUser()
         # This is little hack rather making a generator function for get_db
-        user = AuthenticatedUser.from_orm(user_in_db)
+        user = AuthenticatedUser.model_validate(user_in_db)
         user.session_key = session_key
         return auth, user
 
