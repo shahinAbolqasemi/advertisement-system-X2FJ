@@ -1,9 +1,12 @@
 from fastapi import FastAPI, status
 from starlette.middleware.cors import CORSMiddleware
 
-from app.routers.ad import router as ad_router
-from app.routers.auth import router as auth_router
+from . import database
+from .middlewares import AuthenticationMiddleware, BearerTokenAuthBackend
+from .routers.ad import router as ad_router
+from .routers.auth import router as auth_router
 
+database.Base.metadata.create_all(bind=database.engine)
 app = FastAPI()
 
 app.add_middleware(
@@ -13,6 +16,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(
+    AuthenticationMiddleware,
+    backend=BearerTokenAuthBackend()
+)
 
 
 @app.get('/ping', status_code=status.HTTP_200_OK)
@@ -20,10 +27,5 @@ async def ping():
     return {'message': 'pong'}
 
 
-app.add_route('auth/', auth_router, name='authentication')
-app.add_route('ad/', ad_router, name='advertisement')
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run('app.main:app')
+app.include_router(auth_router, prefix='/auth')
+app.include_router(ad_router, prefix='/ad')
