@@ -64,7 +64,7 @@ async def ad_create(
 async def ad_update(
         request: Request,
         _id: Annotated[int, Path(alias='id')],
-        ad: schemas.AdCreate,
+        ad: schemas.AdUpdate,
         db_session: Annotated[Session, Depends(get_db)]
 ):
     ad_instance_q = db_session.query(models.Advertise) \
@@ -91,7 +91,7 @@ async def ad_update(
 async def ad_partial_update(
         request: Request,
         _id: Annotated[int, Path(alias='id')],
-        ad: schemas.AdCreate,
+        ad: schemas.AdPartialUpdate,
         db_session: Annotated[Session, Depends(get_db)]
 ):
     ad_instance_q = db_session.query(models.Advertise) \
@@ -121,7 +121,7 @@ async def ad_delete(
         db_session: Annotated[Session, Depends(get_db)]
 ):
     ad_instance_q = db_session.query(models.Advertise) \
-        .filter_by(id=_id, status=models.AdvertiseStatus.ACTIVE, owner_id=request.user.id)
+        .filter_by(id=_id, status=models.AdvertiseStatus.ACTIVE)
     if ad_instance_q.first() is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -133,8 +133,12 @@ async def ad_delete(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can not access to this ad.",
         )
-    ad_instance_q.update({'status': models.AdvertiseStatus.INACTIVE})
+    # ad_instance_q.update({'status': models.AdvertiseStatus.INACTIVE})
+    ad_instance = ad_instance_q.first()
+    ad_instance.status = models.AdvertiseStatus.INACTIVE
     db_session.commit()
+    print(_id)
+    print(db_session.query(models.Advertise).filter_by(id=_id).first().status)
 
 
 @router.get(

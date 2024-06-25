@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from app import models
-from app.database import get_db
 from settings import get_settings
 
 settings = get_settings()
@@ -24,8 +23,7 @@ def create_access_token(data: dict, expires_time: datetime | None = None):
     return encoded_jwt
 
 
-def create_session(session_key, user_id, expire_datetime):
-    db_session: Session = next(get_db())
+def create_session(session_key, user_id, expire_datetime, db_session: Session):
     try:
         session_instance = models.Session(
             user_id=user_id,
@@ -38,8 +36,7 @@ def create_session(session_key, user_id, expire_datetime):
         db_session.close()
 
 
-def revoke_session(session_key):
-    db_session: Session = next(get_db())
+def revoke_session(session_key, db_session: Session):
     try:
         session_q = db_session.query(models.Session).filter_by(
             session_key=session_key

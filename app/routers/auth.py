@@ -27,8 +27,8 @@ async def login(token: Annotated[schemas.Token, Depends(authenticate_user)]):
 
 
 @router.post('/logout')
-async def logout(user: Annotated[dict, Depends(get_current_user)]):
-    revoke_session(user['session_key'])
+async def logout(user: Annotated[dict, Depends(get_current_user)], db_session: Annotated[Session, Depends(get_db)]):
+    revoke_session(user['session_key'], db_session)
     return StandardResponse(status=ResponseStatus.SUCCESS)
 
 

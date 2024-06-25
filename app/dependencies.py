@@ -44,6 +44,6 @@ async def authenticate_user(
     access_token = create_access_token(
         data={"sub": user.email, 'session_key': session_key}, expires_time=access_token_expires_time
     )
-    create_session(session_key, user.id, access_token_expires_time)
+    create_session(session_key, user.id, access_token_expires_time, db_session)
 
     return Token(access_token=access_token, token_type='bearer')

@@ -9,7 +9,7 @@ from .routers.auth import router as auth_router
 
 database.Base.metadata.create_all(bind=database.engine)
 app = FastAPI()
-app.state.db = get_db()
+app.state.db = get_db
 
 app.add_middleware(
     CORSMiddleware,

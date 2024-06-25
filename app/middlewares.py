@@ -45,7 +45,7 @@ class BearerTokenAuthBackend(AuthenticationBackend):
                 raise AuthenticationError('Invalid JWT Token.')
             except ExpiredSignatureError:
                 raise AuthenticationError('Signature has expired')
-            db = next(self.app.state.db)
+            db = next(self.app.state.db())
             try:
                 username: str = decoded.get("sub")
                 session_key: str = decoded.get("session_key")

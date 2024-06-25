@@ -24,7 +24,7 @@ def override_get_db():
 
 
 app.dependency_overrides[get_db] = override_get_db
-app.state.db = override_get_db()
+app.state.db = override_get_db
 client = TestClient(app)
 
 # def override_get_current_user():
