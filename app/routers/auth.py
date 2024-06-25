@@ -28,10 +28,7 @@ async def login(token: Annotated[schemas.Token, Depends(authenticate_user)]):
 
 @router.post('/logout')
 async def logout(user: Annotated[dict, Depends(get_current_user)]):
-    try:
-        revoke_session(user['session_key'])
-    except Exception:
-        return StandardResponse(status=ResponseStatus.ERROR)
+    revoke_session(user['session_key'])
     return StandardResponse(status=ResponseStatus.SUCCESS)
 
 

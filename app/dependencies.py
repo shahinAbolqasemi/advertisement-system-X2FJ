@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
 from app.schemas.auth import Token
-from app.security.auth import create_access_token, create_session, revoke_session
+from app.security.auth import create_access_token, create_session
 from settings import get_settings
 
 settings = get_settings()

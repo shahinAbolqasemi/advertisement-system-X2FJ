@@ -35,7 +35,7 @@ class BearerTokenAuthBackend(AuthenticationBackend):
                     return auth, AnonymousUser()
                 decoded = jwt.decode(
                     token,
-                    settings.JWT_SECRET,
+                    settings.SECRET_KEY,
                     algorithms=["HS256"]
                 )
             except (ValueError, UnicodeDecodeError, JWTError) as exc:
@@ -47,7 +47,7 @@ class BearerTokenAuthBackend(AuthenticationBackend):
                 username: str = decoded.get("sub")
                 session_key: str = decoded.get("session_key")
                 token_data = TokenData(username=username, session_key=session_key)
-                user_in_db = db.query(User).filter_by(name=token_data.username).first()
+                user_in_db = db.query(User).filter_by(username=token_data.username).first()
             finally:
                 db.close()
 

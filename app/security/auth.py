@@ -1,7 +1,9 @@
 from datetime import timedelta, timezone, datetime
 
 import jwt
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from starlette import status
 
 from app import models
 from app.database import get_db
@@ -42,7 +44,14 @@ def revoke_session(session_key):
         session_q = db_session.query(models.Session).filter_by(
             session_key=session_key
         )
-        session_q.delete()
+        session_instance = session_q.first()
+        if session_instance is None or \
+                session_instance.revoked == True:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+            )
+        session_instance.revoked = True
         db_session.commit()
     finally:
         db_session.close()
